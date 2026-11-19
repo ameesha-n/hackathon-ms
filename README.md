@@ -29,7 +29,21 @@ erDiagram
 ## Relational schema (PK underlined in the report, FK marked *)
 HACKATHON(hackathon_id, name, city, start_date, end_date) | PARTICIPANT(participant_id, name, email, college) | TEAM(team_id, team_name, hackathon_id*) | TEAM_MEMBER(team_id*, participant_id*, is_lead) | PROJECT(project_id, title, track, repo_url, team_id* UNIQUE) | JUDGE(judge_id, name, expertise) | SCORE(project_id*, judge_id*, innovation, technical, impact) | SPONSOR(sponsor_id, name) | SPONSORSHIP(hackathon_id*, sponsor_id*, amount, tier) | ROLE(role_id, role_name) | APP_USER(user_id, email, password_hash, role_id*, participant_id*, judge_id*, mentor_id*) | MENTOR(mentor_id, name, expertise) | FEEDBACK(feedback_id, project_id*, mentor_id*, rating, comment, created_at) | AUDIT_LOG(log_id, action, details, created_at)
 
-## Run it
+## Run with Docker (recommended)
+Needs Docker Desktop and Node.js 20.6 or newer.
+```bash
+docker compose up -d     # MySQL on port 3307, MongoDB on 27017; db/*.sql loads automatically on first start
+# wait about 60 seconds for MySQL to finish loading the SQL files
+docker compose exec -T mongo mongosh < db/mongo_init.js
+cp .env.example .env.local
+npm install
+npm run seed
+npm run dev              # http://localhost:3000
+```
+Stop with `docker compose down`. Reset all data with `docker compose down -v`.
+
+## Run without Docker (local MySQL and MongoDB)
+Use MySQL 8 and MongoDB 6 or 7. In `.env.local`, change the MySQL port in `MYSQL_URL` from 3307 to 3306.
 ```bash
 mysql -u root -p < db/01_schema.sql && mysql -u root -p < db/02_advanced.sql && mysql -u root -p < db/03_mentor.sql
 mongosh < db/mongo_init.js
